@@ -204,11 +204,7 @@ void TennisRacketModelFernando::draw(mat4 hierarchyModelMatrix, ShaderProgram co
     mat4 partMatrix = translate(mat4(1.0f), vec3(0.0f, armLength / 2, 0.0f)) *
                       scale(mat4(1.0f), vec3(armSize, armLength, armSize));
 
-    mat4 groupMatrix = hierarchyModelMatrix *
-                       rotate(mat4(1.0f), radians(this->getModelRotationZAxis() - upperArmAngle),
-                              vec3(0.0f, 0.0f, 1.0f)) *
-                       rotate(mat4(1.0f), radians(this->getModelRotationYAxis()), vec3(0.0f, 1.0f, 0.0f)) *
-                       rotate(mat4(1.0f), radians(this->getModelRotationXAxis()), vec3(1.0f, 0.0f, 0.0f));
+    mat4 groupMatrix = hierarchyModelMatrix * rotate(mat4(1.0f), radians(modelInitialAngle), vec3(0.0f, 0.0f, 1.0f));
     mat4 worldMatrix = groupMatrix * partMatrix;
     colorShader.setWorldMatrix(worldMatrix);
     glBindVertexArray(this->arm.getVertexBufferObject());

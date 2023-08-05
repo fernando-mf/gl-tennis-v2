@@ -15,7 +15,7 @@ TennisBallFernando::TennisBallFernando() {
 
 void TennisBallFernando::draw(glm::mat4 hierarchyModelMatrix, ShaderProgram shaderProgram, GLuint renderingMode) {
     float tennisBallRadius = 0.8f;
-    mat4 partMatrix = translate(mat4(1.0f), vec3(0.0f, 11.0f, 0.0f)) *
+    mat4 partMatrix = translate(mat4(1.0f), vec3(3.0f, 13.5f, -1.0f)) *
                       scale(mat4(1.0f), vec3(tennisBallRadius));
     mat4 worldMatrix = hierarchyModelMatrix * partMatrix;
 
