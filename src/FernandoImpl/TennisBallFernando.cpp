@@ -9,7 +9,7 @@
 const vec3 COLOR_TENNIS_BALL = vec3(0.0f, 1.0f, 0.0f);
 
 TennisBallFernando::TennisBallFernando() {
-    this->tennisBallTexture = Texture("/Users/jonathan/Documents/Concordia/Summer 2023/COMP 371.nosync/Assignments/PA2/code/assets/textures/tennis_ball.png");
+    this->tennisBallTexture = Texture("./assets/textures/tennis_ball.png");
     this->tennisSphere = SphereFernando(COLOR_TENNIS_BALL);
 }
 

@@ -72,12 +72,12 @@ int main(int argc, char*argv[]) {
 
     /* TEXTURES */
     bool isTexturesEnabled = true;
-    Texture groundTexture = Texture("/Users/jonathan/Documents/Concordia/Summer 2023/COMP 371.nosync/Assignments/PA2/code/assets/textures/red_clay.jpg");
+    Texture groundTexture = Texture("./assets/textures/red_clay.jpg");
 
     /* SHADERS */
     // Instantiate shader programs
-    ShaderProgram shaderProgramColors = ShaderProgram("/Users/jonathan/Documents/Concordia/Summer 2023/COMP 371.nosync/Assignments/PA2/code/assets/shaders/vertex_shader.glsl", "/Users/jonathan/Documents/Concordia/Summer 2023/COMP 371.nosync/Assignments/PA2/code/assets/shaders/fragment_shader.glsl");
-    ShaderProgram shaderProgramTextures = ShaderProgram("/Users/jonathan/Documents/Concordia/Summer 2023/COMP 371.nosync/Assignments/PA2/code/assets/shaders/texture_vertex_shader.glsl", "/Users/jonathan/Documents/Concordia/Summer 2023/COMP 371.nosync/Assignments/PA2/code/assets/shaders/texture_fragment_shader.glsl");
+    ShaderProgram shaderProgramColors = ShaderProgram("./assets/shaders/vertex_shader.glsl", "./assets/shaders/fragment_shader.glsl");
+    ShaderProgram shaderProgramTextures = ShaderProgram("./assets/shaders/texture_vertex_shader.glsl", "./assets/shaders/texture_fragment_shader.glsl");
     shaderProgramTextures.initializeTextures();
     ShaderProgram dynamicTextureShader;
 

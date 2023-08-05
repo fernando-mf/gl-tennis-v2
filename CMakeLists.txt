@@ -41,3 +41,10 @@ list(APPEND BIN ${EXEC})
 
 # install files to install location
 install(TARGETS ${BIN} DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+# copy assets
+add_custom_target(copy_assets
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets
+        COMMENT "Copying assets to ${CMAKE_CURRENT_BINARY_DIR}/assets")
+
+add_dependencies(${EXEC} copy_assets)

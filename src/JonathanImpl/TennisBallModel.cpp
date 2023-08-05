@@ -7,7 +7,7 @@ TennisBallModel::TennisBallModel() {
     vaoBall = sphereBall.getVertexBufferObject();
     verticesNum = sphereBall.getVerticesNum();
 
-    ballTexture = Texture("/Users/jonathan/Documents/Concordia/Summer 2023/COMP 371.nosync/Assignments/PA2/code/assets/textures/tennis_ball.png");
+    ballTexture = Texture("./assets/textures/tennis_ball.png");
 }
 
 void TennisBallModel::draw(mat4 hierarchyModelMatrix, ShaderProgram shaderProgram, GLuint renderingMode) {
