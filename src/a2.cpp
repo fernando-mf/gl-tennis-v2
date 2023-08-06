@@ -123,8 +123,6 @@ int main(int argc, char*argv[]) {
     float maximumFieldOfView = 110.0f / 360.0f * 2 * M_PI;
 
     /* DEPTH MAP */
-    float depthMapWidth = 1024.0f;
-    float depthMapHeight = 1024.0f;
     GLuint depthFBO, depthMap;
     // create FBO
     glGenFramebuffers(1, &depthFBO);
@@ -132,7 +130,7 @@ int main(int argc, char*argv[]) {
     // create depth texture
     glGenTextures(1, &depthMap);
     glBindTexture(GL_TEXTURE_2D, depthMap);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, depthMapWidth, depthMapHeight, 0, GL_DEPTH_COMPONENT,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, windowWidth, windowHeight, 0, GL_DEPTH_COMPONENT,
                  GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -166,12 +164,12 @@ int main(int argc, char*argv[]) {
         /* 1ST PASS: RENDER FROM LIGHT PERSPECTIVE */
         vec3 target = vec3(0.0f);
         mat4 lightView = lookAt(lightPos, target, cameraUp);
-        mat4 lightProjection = perspective(radians(90.0f), float(depthMapWidth) / float(depthMapHeight), 0.01f, 100.0f);
+        mat4 lightProjection = perspective(radians(90.0f), float(windowWidth) / float(windowHeight), 0.01f, 100.0f);
         mat4 lightSpaceMatrix = lightProjection * lightView;
         depthShaderProgram.setLightSpaceMatrix(lightSpaceMatrix);
 
         glBindFramebuffer(GL_FRAMEBUFFER, depthFBO);
-        glViewport(0, 0, depthMapWidth, depthMapHeight);
+        glViewport(0, 0, windowWidth, windowHeight);
         glClear(GL_DEPTH_BUFFER_BIT);
         // draw using depth shader
         scene.draw(depthShaderProgram);
