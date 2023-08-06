@@ -9,6 +9,7 @@ uniform mat4 viewMatrix = mat4(1.0);
 uniform mat4 projectionMatrix = mat4(1.0);
 uniform vec3 color;
 uniform vec3 lightPos;
+uniform mat4 lightSpaceMatrix;
 
 out vec3 vertexColor;
 out vec2 vertexUV;
@@ -16,6 +17,7 @@ out vec3 pos;
 out vec3 normal;
 out vec3 eyeDir;
 out vec3 lightDir;
+out vec4 posLightSpace;
 
 void main() {
     vertexColor = aColor;
@@ -30,4 +32,6 @@ void main() {
     vec3 lightPosCamera = (viewMatrix * vec4(lightPos, 1)).xyz;
     lightDir = lightPosCamera + eyeDir;
     normal = (transpose(inverse(viewMatrix * worldMatrix)) * vec4(aNormal, 1)).xyz;
+
+    posLightSpace = lightSpaceMatrix * vec4(pos, 1.0);
 }

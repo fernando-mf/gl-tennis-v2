@@ -19,6 +19,8 @@ public:
     int projectionMatrixLocation;
     int worldMatrixLocation;
     int texturesEnabledLocation;
+    int lightSpaceMatrixLocation;
+    int shadowMapLocation;
 
     ShaderProgram();
 
@@ -39,6 +41,10 @@ public:
     void enableTextures();
 
     void disableTextures();
+
+    void setLightSpaceMatrix(mat4 lightSpaceMatrix);
+
+    void setShadowMap(int shadowMap);
 };
 
 #endif //PA2_SHADERPROGRAM_H

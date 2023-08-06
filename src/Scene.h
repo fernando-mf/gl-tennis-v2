@@ -40,7 +40,7 @@ public:
 
     Scene();
 
-    void draw(ShaderProgram *shaderProgram);
+    void draw(ShaderProgram shaderProgram);
 
     void setRenderingMode(GLuint renderingMode);
 };

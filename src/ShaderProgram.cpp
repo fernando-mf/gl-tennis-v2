@@ -39,6 +39,8 @@ ShaderProgram::ShaderProgram(const char *vertexShaderPath, const char *fragmentS
     this->projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
     this->worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
     this->texturesEnabledLocation = glGetUniformLocation(shaderProgram, "texturedEnabled");
+    this->lightSpaceMatrixLocation = glGetUniformLocation(shaderProgram, "lightSpaceMatrix");
+    this->shadowMapLocation = glGetUniformLocation(shaderProgram, "shadowMap");
 
     // Store shader program id
     this->id = shaderProgram;
@@ -61,7 +63,6 @@ void ShaderProgram::setWorldMatrix(mat4 worldMatrix) {
 
 void ShaderProgram::initializeTextures() {
     glUseProgram(this->id);
-    glActiveTexture(GL_TEXTURE0);
     GLuint textureLocation = glGetUniformLocation(this->id, "textureSampler");
     glUniform1i(textureLocation, 0);
 }
@@ -120,4 +121,16 @@ void ShaderProgram::enableTextures() {
 
 void ShaderProgram::disableTextures() {
     this->texturesEnabled = false;
+}
+
+void ShaderProgram::setLightSpaceMatrix(mat4 lightSpaceMatrix) {
+    glUseProgram(this->id);
+    glUniformMatrix4fv(lightSpaceMatrixLocation, 1, GL_FALSE, &lightSpaceMatrix[0][0]);
+}
+
+void ShaderProgram::setShadowMap(int shadowMap) {
+    glUseProgram(this->id);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, shadowMap);
+    glUniform1i(this->shadowMapLocation, 1);
 }

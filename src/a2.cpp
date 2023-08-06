@@ -77,6 +77,8 @@ int main(int argc, char*argv[]) {
     ShaderProgram defaultShaderProgram = ShaderProgram("./assets/shaders/texture_vertex_shader.glsl", "./assets/shaders/texture_fragment_shader.glsl");
     defaultShaderProgram.initializeTextures();
 
+    ShaderProgram depthShaderProgram = ShaderProgram("./assets/shaders/depth_vertex_shader.glsl", "./assets/shaders/depth_fragment_shader.glsl");
+
     vec3 lightPos(0.0f, 30.0f, -7.5f);
     GLuint lightLocation = glGetUniformLocation(defaultShaderProgram.id, "lightPos");
     glUniform3fv(lightLocation, 1, &lightPos[0]);
@@ -121,6 +123,32 @@ int main(int argc, char*argv[]) {
     float minimumFieldOfView = 5.0f / 360.0f * 2 * M_PI;
     float maximumFieldOfView = 110.0f / 360.0f * 2 * M_PI;
 
+    /* DEPTH MAP */
+    float depthMapWidth = 1024.0f;
+    float depthMapHeight = 1024.0f;
+    GLuint depthFBO, depthMap;
+    // create FBO
+    glGenFramebuffers(1, &depthFBO);
+
+    // create depth texture
+    glGenTextures(1, &depthMap);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, depthMapWidth, depthMapHeight, 0, GL_DEPTH_COMPONENT,
+                 GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    GLfloat borderColor[] = {1.0, 1.0, 1.0, 1.0};
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+    // attach depth texture to FBO
+    glBindFramebuffer(GL_FRAMEBUFFER, depthFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     // Entering Main Loop
     while(!glfwWindowShouldClose(window)) {
 
@@ -129,19 +157,39 @@ int main(int argc, char*argv[]) {
         float dt = glfwGetTime() - lastFrameTime;
         lastFrameTime += dt;
 
-        /* RESET */
-        // Each frame, reset color of each pixel to glClearColor and clear Depth Buffer Bit as well
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         /* PROJECTION SETUP */
         // Update the current window's dimensions
         glfwGetWindowSize(window, &windowWidth, &windowHeight);
         // Set the projection matrix for shader here since it is dependent on user input
         // FoV (deg), aspect ratio, near and far (near>0)
         mat4 projectionMatrix = perspective(fieldOfView, (float) windowWidth / (float) windowHeight, 0.01f, 100.0f);
-        defaultShaderProgram.setProjectionMatrix(projectionMatrix);
 
-        scene.draw(&defaultShaderProgram);
+        /* 1ST PASS: RENDER FROM LIGHT PERSPECTIVE */
+        vec3 target = vec3(0.0f);
+        mat4 lightView = lookAt(lightPos, target, cameraUp);
+        mat4 lightProjection = perspective(radians(90.0f), float(depthMapWidth) / float(depthMapHeight), 0.01f, 100.0f);
+        mat4 lightSpaceMatrix = lightProjection * lightView;
+        depthShaderProgram.setLightSpaceMatrix(lightSpaceMatrix);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, depthFBO);
+        glViewport(0, 0, depthMapWidth, depthMapHeight);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        // draw using depth shader
+        scene.draw(depthShaderProgram);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        /* 2ND PASS: RENDER FROM CAMERA PERSPECTIVE */
+        defaultShaderProgram.setViewMatrix(viewMatrix);
+        defaultShaderProgram.setProjectionMatrix(projectionMatrix);
+        defaultShaderProgram.setLightSpaceMatrix(lightSpaceMatrix);
+
+        // bind default framebuffer
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glViewport(0, 0, windowWidth * 2, windowHeight * 2);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        defaultShaderProgram.setShadowMap(depthMap);
+        // draw using default shader
+        scene.draw(defaultShaderProgram);
 
         // End Frame
         glfwSwapBuffers(window);
@@ -425,7 +473,6 @@ int main(int argc, char*argv[]) {
         cameraLookAt = vec3(cosf(phi)*cosf(theta), sinf(phi), -cosf(phi)*sinf(theta));
 
         mat4 viewMatrix = lookAt(cameraPosition, cameraPosition + cameraLookAt, cameraUp);
-        defaultShaderProgram.setViewMatrix(viewMatrix);
 
         // Resets the camera view to default
         if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {

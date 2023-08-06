@@ -46,7 +46,7 @@ Scene::Scene() {
     groundTexture = Texture("./assets/textures/red_clay.jpg");
 }
 
-void Scene::draw(ShaderProgram *shaderProgram) {
+void Scene::draw(ShaderProgram shaderProgram) {
     /* HIERARCHICAL MODELLING */
     // This is the base/foundation matrix for the world
     mat4 worldMatrix = rotate(mat4(1.0f), radians(worldRotationZAxis), vec3(0.0f, 0.0f, 1.0f)) *
@@ -55,14 +55,14 @@ void Scene::draw(ShaderProgram *shaderProgram) {
 
     // Model and draw 78x36 ground
     glBindVertexArray(vaoGround);
-    shaderProgram->useTextures();
+    shaderProgram.useTextures();
     groundTexture.use();
     mat4 groundWorldMatrix =
             translate(mat4(1.0f), vec3(0.0f, 0.0f, 0.0f)) * scale(mat4(1.0f), vec3(36.0f, 0.02f, 78.0f));
     groundWorldMatrix = worldMatrix * groundWorldMatrix;
-    shaderProgram->setWorldMatrix(groundWorldMatrix);
+    shaderProgram.setWorldMatrix(groundWorldMatrix);
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    shaderProgram->useColors();
+    shaderProgram.useColors();
 
     // Model and draw coordinate axes
     mat4 axisWorldMatrix;
@@ -70,19 +70,19 @@ void Scene::draw(ShaderProgram *shaderProgram) {
     glBindVertexArray(vaoXAxis);
     axisWorldMatrix = translate(mat4(1.0f), vec3(2.5f, 0.0f, 0.0f)) * scale(mat4(1.0f), vec3(5.0f, 0.1f, 0.1f));
     axisWorldMatrix = worldMatrix * axisWorldMatrix;
-    shaderProgram->setWorldMatrix(axisWorldMatrix);
+    shaderProgram.setWorldMatrix(axisWorldMatrix);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     glBindVertexArray(vaoYAxis);
     axisWorldMatrix = translate(mat4(1.0f), vec3(0.0f, 2.5f, 0.0f)) * scale(mat4(1.0f), vec3(0.1f, 5.0f, 0.1f));
     axisWorldMatrix = worldMatrix * axisWorldMatrix;
-    shaderProgram->setWorldMatrix(axisWorldMatrix);
+    shaderProgram.setWorldMatrix(axisWorldMatrix);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     glBindVertexArray(vaoZAxis);
     axisWorldMatrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, 2.5f)) * scale(mat4(1.0f), vec3(0.1f, 0.1f, 5.0f));
     axisWorldMatrix = worldMatrix * axisWorldMatrix;
-    shaderProgram->setWorldMatrix(axisWorldMatrix);
+    shaderProgram.setWorldMatrix(axisWorldMatrix);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     // Model and draw tennis net
@@ -92,13 +92,13 @@ void Scene::draw(ShaderProgram *shaderProgram) {
     glBindVertexArray(vaoNetPost);
     netPostModelMatrix = translate(mat4(1.0f), vec3(-16.0f, 3.0f, 0.0f)) * scale(mat4(1.0f), vec3(1.0f, 6.0f, 1.0f));
     netPostModelMatrix = worldMatrix * netPostModelMatrix;
-    shaderProgram->setWorldMatrix(netPostModelMatrix);
+    shaderProgram.setWorldMatrix(netPostModelMatrix);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     glBindVertexArray(vaoNetPost);
     netPostModelMatrix = translate(mat4(1.0f), vec3(16.0f, 3.0f, 0.0f)) * scale(mat4(1.0f), vec3(1.0f, 6.0f, 1.0f));
     netPostModelMatrix = worldMatrix * netPostModelMatrix;
-    shaderProgram->setWorldMatrix(netPostModelMatrix);
+    shaderProgram.setWorldMatrix(netPostModelMatrix);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     // Tennis net top
@@ -106,7 +106,7 @@ void Scene::draw(ShaderProgram *shaderProgram) {
     mat4 netTopModelMatrix = translate(mat4(1.0f), vec3(0.0f, -0.35f + 6.0f, 0.0f)) *
                              scale(mat4(1.0f), vec3(32.0f - 2.0f * 0.5f, 0.7f, 0.3f));
     netTopModelMatrix = worldMatrix * netTopModelMatrix;
-    shaderProgram->setWorldMatrix(netTopModelMatrix);
+    shaderProgram.setWorldMatrix(netTopModelMatrix);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     // Tennis net twine
@@ -117,7 +117,7 @@ void Scene::draw(ShaderProgram *shaderProgram) {
         netTwineModelMatrix = translate(mat4(1.0f), vec3(0.0f, 0.2f + i * 0.4f, 0.0f)) *
                               scale(mat4(1.0f), vec3(32.0f - 2.0f * 0.5f, 0.04f, 0.04f));
         netTwineModelMatrix = worldMatrix * netTwineModelMatrix;
-        shaderProgram->setWorldMatrix(netTwineModelMatrix);
+        shaderProgram.setWorldMatrix(netTwineModelMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
@@ -126,7 +126,7 @@ void Scene::draw(ShaderProgram *shaderProgram) {
                 translate(mat4(1.0f), vec3(-16.0f + 0.5f + 0.2f + i * 0.4f, (6.0f - 0.7f - 0.1f) / 2, 0.0f)) *
                 scale(mat4(1.0f), vec3(0.04f, 6.0f - 0.7f - 2.0f * 0.2f - 0.1f, 0.04f));
         netTwineModelMatrix = worldMatrix * netTwineModelMatrix;
-        shaderProgram->setWorldMatrix(netTwineModelMatrix);
+        shaderProgram.setWorldMatrix(netTwineModelMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
@@ -146,15 +146,15 @@ void Scene::draw(ShaderProgram *shaderProgram) {
 
     // Draw each individual member's tennis racket + ball model
     // Jonathan
-    models.at(0)->draw(hierarchyModelMatrix[0], *shaderProgram, renderingMode);
-    tennisBallJonathan.draw(hierarchyModelMatrix[0], *shaderProgram, renderingMode);
+    models.at(0)->draw(hierarchyModelMatrix[0], shaderProgram, renderingMode);
+    tennisBallJonathan.draw(hierarchyModelMatrix[0], shaderProgram, renderingMode);
     // Matthew
-    models.at(1)->draw(hierarchyModelMatrix[1], *shaderProgram, renderingMode);
+    models.at(1)->draw(hierarchyModelMatrix[1], shaderProgram, renderingMode);
     // Fernando
-    models.at(2)->draw(hierarchyModelMatrix[2], *shaderProgram, renderingMode);
-    tennisBallFernando.draw(hierarchyModelMatrix[2], *shaderProgram, renderingMode);
+    models.at(2)->draw(hierarchyModelMatrix[2], shaderProgram, renderingMode);
+    tennisBallFernando.draw(hierarchyModelMatrix[2], shaderProgram, renderingMode);
     // Kiran
-    models.at(3)->draw(hierarchyModelMatrix[3], *shaderProgram, renderingMode);
+    models.at(3)->draw(hierarchyModelMatrix[3], shaderProgram, renderingMode);
 
     glBindVertexArray(0);
 }
