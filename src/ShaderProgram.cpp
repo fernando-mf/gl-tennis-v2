@@ -38,6 +38,7 @@ ShaderProgram::ShaderProgram(const char *vertexShaderPath, const char *fragmentS
     this->viewMatrixLocation = glGetUniformLocation(shaderProgram, "viewMatrix");
     this->projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
     this->worldMatrixLocation = glGetUniformLocation(shaderProgram, "worldMatrix");
+    this->texturesEnabledLocation = glGetUniformLocation(shaderProgram, "texturedEnabled");
 
     // Store shader program id
     this->id = shaderProgram;
@@ -58,7 +59,6 @@ void ShaderProgram::setWorldMatrix(mat4 worldMatrix) {
     glUniformMatrix4fv(worldMatrixLocation, 1, GL_FALSE, &worldMatrix[0][0]);
 }
 
-// Only texture shaders should call this
 void ShaderProgram::initializeTextures() {
     glUseProgram(this->id);
     glActiveTexture(GL_TEXTURE0);
@@ -102,4 +102,22 @@ int ShaderProgram::compileShader(GLenum shaderType, const char *shaderPath) {
     }
 
     return shader;
+}
+
+void ShaderProgram::useTextures() {
+    glUseProgram(this->id);
+    glUniform1i(this->texturesEnabledLocation, texturesEnabled);
+}
+
+void ShaderProgram::useColors() {
+    glUseProgram(this->id);
+    glUniform1i(this->texturesEnabledLocation, false);
+}
+
+void ShaderProgram::enableTextures() {
+    this->texturesEnabled = true;
+}
+
+void ShaderProgram::disableTextures() {
+    this->texturesEnabled = false;
 }

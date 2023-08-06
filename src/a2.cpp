@@ -76,13 +76,11 @@ int main(int argc, char*argv[]) {
 
     /* SHADERS */
     // Instantiate shader programs
-    ShaderProgram shaderProgramColors = ShaderProgram("./assets/shaders/vertex_shader.glsl", "./assets/shaders/fragment_shader.glsl");
-    ShaderProgram shaderProgramTextures = ShaderProgram("./assets/shaders/texture_vertex_shader.glsl", "./assets/shaders/texture_fragment_shader.glsl");
-    shaderProgramTextures.initializeTextures();
-    ShaderProgram dynamicTextureShader;
+    ShaderProgram defaultShaderProgram = ShaderProgram("./assets/shaders/texture_vertex_shader.glsl", "./assets/shaders/texture_fragment_shader.glsl");
+    defaultShaderProgram.initializeTextures();
 
     vec3 lightPos(0.0f, 30.0f, -7.5f);
-    GLuint lightLocation = glGetUniformLocation(shaderProgramColors.id, "lightPos");
+    GLuint lightLocation = glGetUniformLocation(defaultShaderProgram.id, "lightPos");
     glUniform3fv(lightLocation, 1, &lightPos[0]);
 
     /* CAMERA */
@@ -103,8 +101,7 @@ int main(int argc, char*argv[]) {
     // Set initial view matrix
     // eye, center, up
     mat4 viewMatrix = lookAt(cameraPosition, cameraPosition + cameraLookAt, cameraUp);
-    shaderProgramColors.setViewMatrix(viewMatrix);
-    shaderProgramTextures.setViewMatrix(viewMatrix);
+    defaultShaderProgram.setViewMatrix(viewMatrix);
 
     /* VERTEX ARRAY OBJECT GEOMETRIES */
     Cube cubeGround = Cube(vec3(1.0f, 1.0f, 0.0f));
@@ -173,17 +170,13 @@ int main(int argc, char*argv[]) {
         // Each frame, reset color of each pixel to glClearColor and clear Depth Buffer Bit as well
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        /* SHADER PROGRAM SET */
-        dynamicTextureShader = isTexturesEnabled ? shaderProgramTextures : shaderProgramColors;
-
         /* PROJECTION SETUP */
         // Update the current window's dimensions
         glfwGetWindowSize(window, &windowWidth, &windowHeight);
         // Set the projection matrix for shader here since it is dependent on user input
         // FoV (deg), aspect ratio, near and far (near>0)
         mat4 projectionMatrix = perspective(fieldOfView, (float) windowWidth / (float) windowHeight, 0.01f, 100.0f);
-        shaderProgramColors.setProjectionMatrix(projectionMatrix);
-        shaderProgramTextures.setProjectionMatrix(projectionMatrix);
+        defaultShaderProgram.setProjectionMatrix(projectionMatrix);
 
         /* HIERARCHICAL MODELLING */
         // This is the base/foundation matrix for the world
@@ -191,11 +184,13 @@ int main(int argc, char*argv[]) {
 
         // Model and draw 78x36 ground
         glBindVertexArray(vaoGround);
+        defaultShaderProgram.useTextures();
         groundTexture.use();
         mat4 groundWorldMatrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, 0.0f)) * scale(mat4(1.0f), vec3(36.0f, 0.02f, 78.0f));
         groundWorldMatrix = worldMatrix * groundWorldMatrix;
-        dynamicTextureShader.setWorldMatrix(groundWorldMatrix);
+        defaultShaderProgram.setWorldMatrix(groundWorldMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+        defaultShaderProgram.useColors();
 
         // Model and draw coordinate axes
         mat4 axisWorldMatrix;
@@ -203,19 +198,19 @@ int main(int argc, char*argv[]) {
         glBindVertexArray(vaoXAxis);
         axisWorldMatrix = translate(mat4(1.0f), vec3(2.5f, 0.0f, 0.0f)) * scale(mat4(1.0f), vec3(5.0f, 0.1f, 0.1f));
         axisWorldMatrix = worldMatrix * axisWorldMatrix;
-        shaderProgramColors.setWorldMatrix(axisWorldMatrix);
+        defaultShaderProgram.setWorldMatrix(axisWorldMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glBindVertexArray(vaoYAxis);
         axisWorldMatrix = translate(mat4(1.0f), vec3(0.0f, 2.5f, 0.0f)) * scale(mat4(1.0f), vec3(0.1f, 5.0f, 0.1f));
         axisWorldMatrix = worldMatrix * axisWorldMatrix;
-        shaderProgramColors.setWorldMatrix(axisWorldMatrix);
+        defaultShaderProgram.setWorldMatrix(axisWorldMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glBindVertexArray(vaoZAxis);
         axisWorldMatrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, 2.5f)) * scale(mat4(1.0f), vec3(0.1f, 0.1f, 5.0f));
         axisWorldMatrix = worldMatrix * axisWorldMatrix;
-        shaderProgramColors.setWorldMatrix(axisWorldMatrix);
+        defaultShaderProgram.setWorldMatrix(axisWorldMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // Model and draw tennis net
@@ -225,20 +220,20 @@ int main(int argc, char*argv[]) {
         glBindVertexArray(vaoNetPost);
         netPostModelMatrix = translate(mat4(1.0f), vec3(-16.0f, 3.0f, 0.0f)) * scale(mat4(1.0f), vec3(1.0f, 6.0f, 1.0f));
         netPostModelMatrix = worldMatrix * netPostModelMatrix;
-        shaderProgramColors.setWorldMatrix(netPostModelMatrix);
+        defaultShaderProgram.setWorldMatrix(netPostModelMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glBindVertexArray(vaoNetPost);
         netPostModelMatrix = translate(mat4(1.0f), vec3(16.0f, 3.0f, 0.0f)) * scale(mat4(1.0f), vec3(1.0f, 6.0f, 1.0f));
         netPostModelMatrix = worldMatrix * netPostModelMatrix;
-        shaderProgramColors.setWorldMatrix(netPostModelMatrix);
+        defaultShaderProgram.setWorldMatrix(netPostModelMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // Tennis net top
         glBindVertexArray(vaoNetTop);
         mat4 netTopModelMatrix = translate(mat4(1.0f), vec3(0.0f, -0.35f + 6.0f, 0.0f)) * scale(mat4(1.0f), vec3(32.0f - 2.0f * 0.5f, 0.7f, 0.3f));
         netTopModelMatrix = worldMatrix * netTopModelMatrix;
-        shaderProgramColors.setWorldMatrix(netTopModelMatrix);
+        defaultShaderProgram.setWorldMatrix(netTopModelMatrix);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // Tennis net twine
@@ -248,14 +243,14 @@ int main(int argc, char*argv[]) {
         for (int i=0; i<13; ++i) {
             netTwineModelMatrix = translate(mat4(1.0f), vec3(0.0f, 0.2f + i * 0.4f, 0.0f)) * scale(mat4(1.0f), vec3(32.0f - 2.0f * 0.5f, 0.04f, 0.04f));
             netTwineModelMatrix = worldMatrix * netTwineModelMatrix;
-            shaderProgramColors.setWorldMatrix(netTwineModelMatrix);
+            defaultShaderProgram.setWorldMatrix(netTwineModelMatrix);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
         for (int i=0; i<77; ++i) {
             netTwineModelMatrix = translate(mat4(1.0f), vec3(-16.0f + 0.5f + 0.2f + i * 0.4f, (6.0f - 0.7f - 0.1f) / 2, 0.0f)) * scale(mat4(1.0f), vec3(0.04f, 6.0f - 0.7f - 2.0f * 0.2f - 0.1f, 0.04f));
             netTwineModelMatrix = worldMatrix * netTwineModelMatrix;
-            shaderProgramColors.setWorldMatrix(netTwineModelMatrix);
+            defaultShaderProgram.setWorldMatrix(netTwineModelMatrix);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
@@ -269,15 +264,15 @@ int main(int argc, char*argv[]) {
 
         // Draw each individual member's tennis racket + ball model
         // Jonathan
-        models.at(0)->draw(hierarchyModelMatrix[0], shaderProgramColors, renderingMode);
-        tennisBallJonathan.draw(hierarchyModelMatrix[0], dynamicTextureShader, renderingMode);
+        models.at(0)->draw(hierarchyModelMatrix[0], defaultShaderProgram, renderingMode);
+        tennisBallJonathan.draw(hierarchyModelMatrix[0], defaultShaderProgram, renderingMode);
         // Matthew
-        models.at(1)->draw(hierarchyModelMatrix[1], shaderProgramColors, renderingMode);
+        models.at(1)->draw(hierarchyModelMatrix[1], defaultShaderProgram, renderingMode);
         // Fernando
-        models.at(2)->draw(hierarchyModelMatrix[2], shaderProgramColors, renderingMode);
-        tennisBallFernando.draw(hierarchyModelMatrix[2], dynamicTextureShader, renderingMode);
+        models.at(2)->draw(hierarchyModelMatrix[2], defaultShaderProgram, renderingMode);
+        tennisBallFernando.draw(hierarchyModelMatrix[2], defaultShaderProgram, renderingMode);
         // Kiran
-        models.at(3)->draw(hierarchyModelMatrix[3], shaderProgramColors, renderingMode);
+        models.at(3)->draw(hierarchyModelMatrix[3], defaultShaderProgram, renderingMode);
 
         // End Frame
         glfwSwapBuffers(window);
@@ -511,6 +506,11 @@ int main(int argc, char*argv[]) {
         if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
             if (glfwGetTime() - controlTimer >= 0.1f) {
                 isTexturesEnabled = !isTexturesEnabled;
+                if (isTexturesEnabled) {
+                    defaultShaderProgram.enableTextures();
+                } else {
+                    defaultShaderProgram.disableTextures();
+                }
                 controlTimer = glfwGetTime();
             }
         }
@@ -556,8 +556,7 @@ int main(int argc, char*argv[]) {
         cameraLookAt = vec3(cosf(phi)*cosf(theta), sinf(phi), -cosf(phi)*sinf(theta));
 
         mat4 viewMatrix = lookAt(cameraPosition, cameraPosition + cameraLookAt, cameraUp);
-        shaderProgramColors.setViewMatrix(viewMatrix);
-        shaderProgramTextures.setViewMatrix(viewMatrix);
+        defaultShaderProgram.setViewMatrix(viewMatrix);
 
         // Resets the camera view to default
         if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {

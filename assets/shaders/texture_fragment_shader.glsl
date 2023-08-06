@@ -1,18 +1,26 @@
 #version 330 core
-uniform vec3 lightPos;
+
 in vec2 vertexUV;
-uniform sampler2D textureSampler;
 in vec3 pos;
 in vec3 normal;
 in vec3 eyeDir;
 in vec3 lightDir;
+in vec3 vertexColor;
+
+uniform vec3 lightPos;
+uniform sampler2D textureSampler;
+uniform bool texturedEnabled = false;
+
 out vec3 FragColor;
 
 void main() {
     vec3 lightColor = vec3(1,1,1);
     float lightPower = 50.0f;
 
-    vec4 textureColor = texture(textureSampler, vertexUV);
+    vec4 textureColor = vec4(vertexColor, 1.0f);
+    if (texturedEnabled) {
+        textureColor = texture(textureSampler, vertexUV);
+    }
     vec3 diffuseColor = textureColor.xyz;
     vec3 specularColor = vec3(0.3,0.3,0.3);
     vec3 ambientColor = vec3(0.5,0.5,0.5) * textureColor.xyz;

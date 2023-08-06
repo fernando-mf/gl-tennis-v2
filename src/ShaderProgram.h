@@ -8,6 +8,8 @@ using namespace glm;
 
 class ShaderProgram {
 private:
+    bool texturesEnabled = true;
+
     const char* readFile(const char* filePath);
 
     int compileShader(GLenum shaderType, const char *shaderPath);
@@ -16,6 +18,7 @@ public:
     int viewMatrixLocation;
     int projectionMatrixLocation;
     int worldMatrixLocation;
+    int texturesEnabledLocation;
 
     ShaderProgram();
 
@@ -28,6 +31,14 @@ public:
     void setWorldMatrix(mat4 worldMatrix);
 
     void initializeTextures();
+
+    void useTextures();
+
+    void useColors();
+
+    void enableTextures();
+
+    void disableTextures();
 };
 
 #endif //PA2_SHADERPROGRAM_H

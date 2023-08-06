@@ -19,7 +19,9 @@ void TennisBallFernando::draw(glm::mat4 hierarchyModelMatrix, ShaderProgram shad
                       scale(mat4(1.0f), vec3(tennisBallRadius));
     mat4 worldMatrix = hierarchyModelMatrix * partMatrix;
 
+    shaderProgram.useTextures();
     tennisBallTexture.use();
     shaderProgram.setWorldMatrix(worldMatrix);
     tennisSphere.draw(renderingMode);
+    shaderProgram.useColors();
 }

@@ -16,6 +16,7 @@ void TennisBallModel::draw(mat4 hierarchyModelMatrix, ShaderProgram shaderProgra
 
     /* MODEL AND DRAW */
     glBindVertexArray(vaoBall);
+    shaderProgram.useTextures();
     ballTexture.use();
     mat4 tennisballModelMatrix = translate(mat4(1.0f), vec3(0.0f, 11.0f, -2.0f)) * scale(mat4(1.0f), vec3(0.7f, 0.7f, 0.7f));
     modelMatrix = hierarchyModelMatrix * tennisballModelMatrix;
@@ -31,4 +32,5 @@ void TennisBallModel::draw(mat4 hierarchyModelMatrix, ShaderProgram shaderProgra
             glDrawArrays(GL_TRIANGLE_STRIP, 0, verticesNum);
             break;
     }
+    shaderProgram.useColors();
 }
