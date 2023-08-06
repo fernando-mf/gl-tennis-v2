@@ -21,6 +21,7 @@ public:
     int texturesEnabledLocation;
     int lightSpaceMatrixLocation;
     int shadowMapLocation;
+    int lightPositionLocation;
 
     ShaderProgram();
 
@@ -45,6 +46,8 @@ public:
     void setLightSpaceMatrix(mat4 lightSpaceMatrix);
 
     void setShadowMap(int shadowMap);
+
+    void setLightPosition(vec3 lightPosition);
 };
 
 #endif //PA2_SHADERPROGRAM_H

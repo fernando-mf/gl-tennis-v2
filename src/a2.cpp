@@ -80,8 +80,7 @@ int main(int argc, char*argv[]) {
     ShaderProgram depthShaderProgram = ShaderProgram("./assets/shaders/depth_vertex_shader.glsl", "./assets/shaders/depth_fragment_shader.glsl");
 
     vec3 lightPos(0.0f, 30.0f, -7.5f);
-    GLuint lightLocation = glGetUniformLocation(defaultShaderProgram.id, "lightPos");
-    glUniform3fv(lightLocation, 1, &lightPos[0]);
+    defaultShaderProgram.setLightPosition(lightPos);
 
     /* CAMERA */
     // Camera parameters for view transform

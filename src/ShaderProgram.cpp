@@ -41,6 +41,7 @@ ShaderProgram::ShaderProgram(const char *vertexShaderPath, const char *fragmentS
     this->texturesEnabledLocation = glGetUniformLocation(shaderProgram, "texturedEnabled");
     this->lightSpaceMatrixLocation = glGetUniformLocation(shaderProgram, "lightSpaceMatrix");
     this->shadowMapLocation = glGetUniformLocation(shaderProgram, "shadowMap");
+    this->lightPositionLocation = glGetUniformLocation(shaderProgram, "lightPos");
 
     // Store shader program id
     this->id = shaderProgram;
@@ -133,4 +134,9 @@ void ShaderProgram::setShadowMap(int shadowMap) {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, shadowMap);
     glUniform1i(this->shadowMapLocation, 1);
+}
+
+void ShaderProgram::setLightPosition(vec3 lightPosition) {
+    glUseProgram(this->id);
+    glUniform3fv(this->lightPositionLocation, 1, &lightPosition[0]);
 }
